@@ -1,0 +1,12 @@
+# Node modules
+acting ai/node_modules
+frontend/node_modules/
+backend/node_modules/
+
+# Python cache
+__pycache__/
+
+# Other common ignores (optional)
+*.log
+.env
+backend/checkpoints/
