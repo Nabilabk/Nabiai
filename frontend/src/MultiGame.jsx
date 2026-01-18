@@ -21,15 +21,201 @@ const MESSAGES = {
     wrong: ["NOPE!", "WRONG EMOTION!", "HAHA NO!"]
 }
 
+function StartingPlayerSelection({ players, onPlayerSelected, onBack }) {
+    const [selectedPlayer, setSelectedPlayer] = useState(null);
+    const [selecting, setSelecting] = useState(true);
+
+    const selectRandomPlayer = () => {
+        setSelecting(true);
+        let count = 0;
+        const maxCount = 8;
+        const interval = setInterval(() => {
+            const randomPlayer = Math.random() > 0.5 ? 0 : 1;
+            setSelectedPlayer(randomPlayer);
+            count++;
+            if (count >= maxCount) {
+                clearInterval(interval);
+                setSelecting(false);
+                setTimeout(() => {
+                    onPlayerSelected(randomPlayer);
+                }, 1500);
+            }
+        }, 150);
+    };
+
+    const manualSelect = (playerIndex) => {
+        setSelectedPlayer(playerIndex);
+        setSelecting(false);
+        setTimeout(() => {
+            onPlayerSelected(playerIndex);
+        }, 1000);
+    };
+
+    return (
+        <div className="min-h-screen p-6 relative overflow-hidden" style={{
+            background: 'radial-gradient(ellipse at top, #1a0000 0%, #0a0a0a 50%, #000000 100%)'
+        }}>
+            <div className="absolute inset-0 pointer-events-none opacity-20">
+                <motion.div
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 6, repeat: Infinity }}
+                    className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full blur-3xl"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%)'
+                    }}
+                />
+            </div>
+
+            <Link to="/" className="fixed top-6 left-6 z-50">
+                <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="px-4 py-2 rounded-lg flex items-center gap-2"
+                    style={{
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}
+                >
+                    <ArrowLeft className="text-white" size={20} />
+                    <span className="text-white font-bold text-sm">MENU</span>
+                </motion.div>
+            </Link>
+
+            <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="bg-gray-900 border-4 border-gold rounded-3xl p-8 max-w-md w-full mx-auto mt-20 text-center relative z-10"
+                style={{
+                    boxShadow: '0 0 50px rgba(255, 215, 0, 0.3)'
+                }}
+            >
+                <motion.div
+                    animate={{
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                        rotate: { repeat: Infinity, duration: 2 },
+                        scale: { repeat: Infinity, duration: 1.5 }
+                    }}
+                >
+                    <Trophy className="text-gold mx-auto mb-4" size={60} />
+                </motion.div>
+                
+                <h2 className="text-4xl font-bold mb-2" style={{
+                    fontFamily: '"Bebas Neue", sans-serif',
+                    background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                }}>
+                    WHO STARTS FIRST?
+                </h2>
+                <p className="text-gray-400 mb-6 text-lg">
+                    Choose who goes first in this emotional duel! 🎭
+                </p>
+
+                <div className="space-y-4 mb-6">
+                    {players.map((player, index) => (
+                        <motion.button
+                            key={player.id}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => manualSelect(index)}
+                            className={`w-full p-5 rounded-xl font-bold text-xl transition-all ${
+                                selectedPlayer === index 
+                                    ? 'bg-gold text-black border-4 border-gold shadow-lg' 
+                                    : 'bg-gray-800 text-white border-2 border-gray-600 hover:border-gold'
+                            }`}
+                            disabled={!selecting}
+                            style={{
+                                fontFamily: '"Bebas Neue", sans-serif',
+                            }}
+                        >
+                            {player.name}
+                            {selectedPlayer === index && !selecting && (
+                                <motion.span
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="ml-2"
+                                >
+                                    🎬
+                                </motion.span>
+                            )}
+                        </motion.button>
+                    ))}
+                </div>
+
+                <div className="text-center mb-6">
+                    <div className="text-gray-400 mb-3 text-lg">— OR —</div>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={selectRandomPlayer}
+                        disabled={!selecting}
+                        className="px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition shadow-lg flex items-center gap-2 mx-auto"
+                        style={{
+                            background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                            color: '#000',
+                            fontFamily: '"Bebas Neue", sans-serif',
+                        }}
+                    >
+                        🎲 RANDOM SELECT
+                    </motion.button>
+                </div>
+
+                {selectedPlayer !== null && !selecting && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-3xl font-bold mb-4"
+                        style={{
+                            background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            fontFamily: '"Bebas Neue", sans-serif',
+                        }}
+                    >
+                        {players[selectedPlayer]?.name} STARTS! 🎭
+                    </motion.div>
+                )}
+            </motion.div>
+        </div>
+    );
+}
+
 export default function MultiGame() {
     const [players, setPlayers] = useState([
-        { id: 1, name: "Joueur 1", level: 1, score: 0, round: 0, totalRounds: 0, bestStreak: 0, streak: 0, roundScore: 0, totalScore: 0 },
-        { id: 2, name: "Joueur 2", level: 1, score: 0, round: 0, totalRounds: 0, bestStreak: 0, streak: 0, roundScore: 0, totalScore: 0 }
+        { 
+            id: 1, 
+            name: "Joueur 1", 
+            level: 1, 
+            score: 0, 
+            round: 0, 
+            totalRounds: 0, 
+            bestStreak: 0, 
+            streak: 0, 
+            roundScore: 0, 
+            totalScore: 0,
+            hasMadeMistake: false
+        },
+        { 
+            id: 2, 
+            name: "Joueur 2", 
+            level: 1, 
+            score: 0, 
+            round: 0, 
+            totalRounds: 0, 
+            bestStreak: 0, 
+            streak: 0, 
+            roundScore: 0, 
+            totalScore: 0,
+            hasMadeMistake: false
+        }
     ])
     const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0)
     const [targets, setTargets] = useState([])
     const [currentTargetIndex, setCurrentTargetIndex] = useState(0)
-    const [gameState, setGameState] = useState('ready')
+    const [gameState, setGameState] = useState('selectingStarter')
     const [countdown, setCountdown] = useState(3)
     const [feedback, setFeedback] = useState(null)
     const [soundEnabled, setSoundEnabled] = useState(true)
@@ -38,6 +224,7 @@ export default function MultiGame() {
     const [showLevelComplete, setShowLevelComplete] = useState(false)
     const [gameComplete, setGameComplete] = useState(false)
     const [winner, setWinner] = useState(null)
+    const [cameraInitialized, setCameraInitialized] = useState(false)
     const videoRef = useRef()
     const canvasRef = useRef()
     const timerRef = useRef(null)
@@ -45,24 +232,46 @@ export default function MultiGame() {
     const targetsRef = useRef([])
     const currentIndexRef = useRef(0)
     const processingRef = useRef(false)
-    const gameStateRef = useRef('ready')
+    const gameStateRef = useRef('selectingStarter')
     const targetScoresRef = useRef([])
+    const roundCompleteRef = useRef(false)
 
     const currentPlayer = players[currentPlayerIndex]
-    const currentLevel = LEVELS[currentPlayer.level - 1] || LEVELS[0]
+    const currentLevel = currentPlayer ? LEVELS[currentPlayer.level - 1] || LEVELS[0] : LEVELS[0]
 
+    // Initialize camera when game state changes to ready
     useEffect(() => {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                if (videoRef.current) videoRef.current.srcObject = stream
-            })
-    }, [])
+        if (gameState === 'ready' && !cameraInitialized) {
+            const initCamera = async () => {
+                try {
+                    console.log("📹 Initializing camera...");
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = stream
+                        setTimeout(() => {
+                            setCameraInitialized(true);
+                            console.log("📹 Camera initialized successfully");
+                        }, 500);
+                    }
+                } catch (err) {
+                    console.error("Camera error:", err)
+                }
+            }
+            initCamera();
+        }
+    }, [gameState, cameraInitialized]);
 
     const setGameStateWithLog = (newState) => {
         console.log("🎮 GAME STATE CHANGE:", gameState, "->", newState, "at", Date.now());
-        console.trace("Stack trace for game state change");
         setGameState(newState);
         gameStateRef.current = newState;
+    };
+
+    const handleStarterSelected = (playerIndex) => {
+        console.log("🎯 Starter selected:", playerIndex, "Player:", players[playerIndex]);
+        setCurrentPlayerIndex(playerIndex);
+        setGameStateWithLog('ready');
+        soundManager.playCountdownGo();
     };
 
     const updatePlayer = (updates) => {
@@ -70,17 +279,40 @@ export default function MultiGame() {
     }
 
     const switchPlayer = () => {
-        setCurrentPlayerIndex(prev => (prev + 1) % 2)
-        setTargets([])
-        setCurrentTargetIndex(0)
-        targetsRef.current = []
-        currentIndexRef.current = 0
-        targetScoresRef.current = []
-        setFeedback(null)
-        setGameStateWithLog('ready')
+        console.log("🔄 SWITCHING PLAYER:", currentPlayer.name, "->", players[(currentPlayerIndex + 1) % 2].name);
+        const nextPlayerIndex = (currentPlayerIndex + 1) % 2;
+        
+        // Reset hasMadeMistake for the next player
+        setPlayers(prev => prev.map(p => ({
+            ...p,
+            hasMadeMistake: p.id === players[nextPlayerIndex].id ? false : p.hasMadeMistake
+        })));
+        
+        setCurrentPlayerIndex(nextPlayerIndex);
+        setTargets([]);
+        setCurrentTargetIndex(0);
+        targetsRef.current = [];
+        currentIndexRef.current = 0;
+        targetScoresRef.current = [];
+        roundCompleteRef.current = false;
+        setFeedback(null);
+        setGameStateWithLog('ready');
     }
 
     const startRound = () => {
+        if (!currentPlayer) {
+            console.error("No current player found!");
+            return;
+        }
+        
+        // Check if camera is ready
+        if (!cameraInitialized || !videoRef.current) {
+            console.error("Camera not ready!");
+            setFeedback({ emotion: "CAMERA", confidence: 0, pts: 0, msg: "Camera not ready!" })
+            setTimeout(() => setFeedback(null), 2000)
+            return;
+        }
+
         const newTargets = Array(currentLevel.combo).fill().map(() =>
             EMOTIONS[Math.floor(Math.random() * EMOTIONS.length)]
         )
@@ -93,6 +325,7 @@ export default function MultiGame() {
         setCurrentTargetIndex(0)
         currentIndexRef.current = 0
         targetScoresRef.current = []
+        roundCompleteRef.current = false
 
         updatePlayer({ round: currentPlayer.round + 1, totalRounds: currentPlayer.totalRounds + 1 })
         setGameStateWithLog('countdown')
@@ -121,10 +354,15 @@ export default function MultiGame() {
     }
 
     const capture = async () => {
-        if (!videoRef.current || !canvasRef.current) return
+        if (!videoRef.current || !canvasRef.current) {
+            console.error("Video or canvas ref not available");
+            return;
+        }
         
         console.log("📸 CAPTURE CALLED - Game state:", gameState);
         console.log("📸 Processing ref:", processingRef.current);
+        console.log("📹 Video ready:", videoRef.current.readyState);
+        console.log("📹 Video dimensions:", videoRef.current.videoWidth, "x", videoRef.current.videoHeight);
         
         if (processingRef.current) {
             console.log("🚫 CAPTURE BLOCKED - Already processing");
@@ -139,22 +377,50 @@ export default function MultiGame() {
         
         const canvas = canvasRef.current
         const video = videoRef.current
+        
+        // Check if video has valid dimensions
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+            console.error("❌ CAPTURE FAILED: Video has no dimensions!");
+            setFeedback({ emotion: "CAMERA ERROR", confidence: 0, pts: 0, msg: "Camera not working!" })
+            setTimeout(() => {
+                setFeedback(null)
+                setGameStateWithLog('ready')
+            }, 2000)
+            return;
+        }
+        
         canvas.width = video.videoWidth
         canvas.height = video.videoHeight
-        canvas.getContext('2d').drawImage(video, 0, 0)
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg'))
-        const form = new FormData()
-        form.append('file', blob, 'frame.jpg')
-
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        
+        console.log("📸 Canvas dimensions:", canvas.width, "x", canvas.height);
+        
+        // Create blob from canvas
         try {
+            const blob = await new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.8);
+            });
+
+            if (!blob) {
+                throw new Error('Failed to create blob from canvas');
+            }
+
+            console.log("📸 Blob created successfully, size:", blob.size);
+
+            const form = new FormData()
+            form.append('file', blob, 'frame.jpg')
+
             const res = await fetch('/predict', { method: 'POST', body: form })
             if (!res.ok) throw new Error("Predict failed")
             const data = await res.json()
             console.log("📡 PREDICTION RECEIVED:", data, "Game state:", gameState);
             handleResult(data)
         } catch (err) {
-            console.error("Predict error:", err)
-            setFeedback({ emotion: "NO FACE", confidence: 0, pts: 0, msg: "Show your face!" })
+            console.error("Capture error:", err)
+            setFeedback({ emotion: "ERROR", confidence: 0, pts: 0, msg: "Capture failed!" })
             setTimeout(() => {
                 setFeedback(null)
                 console.log("STOPPING CAPTURE DUE TO ERROR");
@@ -164,8 +430,21 @@ export default function MultiGame() {
     }
 
     const handleResult = ({ emotion, confidence }) => {
+        // FIX: Check if game is in the correct state before processing
+        if (gameState !== 'acting' && gameStateRef.current !== 'acting') {
+            console.log("🚫 IGNORING RESULT - Game not in 'acting' state:", gameState);
+            processingRef.current = false;
+            return;
+        }
+        
         if (processingRef.current) {
             console.log("🚫 DUPLICATE CALL BLOCKED - Already processing");
+            return;
+        }
+        
+        if (roundCompleteRef.current) {
+            console.log("🚫 ROUND ALREADY COMPLETE - Ignoring result");
+            processingRef.current = false;
             return;
         }
         
@@ -239,7 +518,13 @@ export default function MultiGame() {
             }
         } else {
             newStreak = 0;
-            console.log("❌ WRONG EMOTION - ENDING ROUND");
+            console.log("❌ WRONG EMOTION - MAKING MISTAKE");
+            
+            // Mark player as having made a mistake
+            setPlayers(prev => prev.map(p => 
+                p.id === currentPlayer.id ? { ...p, hasMadeMistake: true } : p
+            ));
+            
             soundManager.playWrong();
             setScreenShake(true);
             setTimeout(() => setScreenShake(false), 500);
@@ -254,15 +539,17 @@ export default function MultiGame() {
                 isLast: true
             });
             
+            roundCompleteRef.current = true;
+            
             setTimeout(() => {
                 updatePlayer({ roundScore: 0 })
                 setFeedback(null);
-                console.log("🔄 CHANGING GAME STATE TO 'ready' - WRONG EMOTION");
+                console.log("❌ PLAYER MADE MISTAKE - SWITCHING TO OTHER PLAYER");
                 setGameStateWithLog('ready');
                 processingRef.current = false;
                 currentIndexRef.current = 0;
                 targetScoresRef.current = [];
-                switchPlayer()
+                switchPlayer() // SWITCH PLAYER ONLY WHEN THEY MAKE WRONG EMOTION
             }, 2000);
             return;
         }
@@ -311,6 +598,7 @@ export default function MultiGame() {
             }, 2000);
         } else {
             console.log("🏁 ROUND FINISHED! STOPPING CAPTURE LOOP");
+            roundCompleteRef.current = true;
 
             const averageScore = targetScoresRef.current.reduce((a, b) => a + b, 0) / targetScoresRef.current.length;
             const roundFinalScore = Math.round(averageScore);
@@ -318,8 +606,14 @@ export default function MultiGame() {
             console.log("📊 Average score for round:", roundFinalScore);
 
             const finalScore = currentPlayer.score + roundFinalScore;
-            updatePlayer({ score: finalScore })
-            updatePlayer({ roundScore: roundFinalScore })
+            
+            // Update player with round score and accumulate total
+            updatePlayer({ 
+                score: finalScore,
+                roundScore: roundFinalScore,
+                totalScore: currentPlayer.totalScore + roundFinalScore
+            })
+            
             console.log("🔄 CHANGING GAME STATE TO 'ready' - ROUND FINISHED");
             setGameStateWithLog('ready');
 
@@ -340,37 +634,50 @@ export default function MultiGame() {
                         setShowLevelComplete(false);
                         updatePlayer({
                             level: nextLevel,
-                            score: 0,
+                            score: 0,                    // Reset level score for next level
                             roundScore: 0,
-                            round: 0
+                            round: 0,
+                            hasMadeMistake: false // Reset mistake flag on level up
                         })
                         setTargets([]);
                         setCurrentTargetIndex(0);
                         targetsRef.current = [];
                         currentIndexRef.current = 0;
                         targetScoresRef.current = [];
+                        roundCompleteRef.current = false;
+                        console.log("🎯", currentPlayer.name, "WINS LEVEL! KEEPS PLAYING!");
                         console.log("🔄 CHANGING GAME STATE TO 'ready' - LEVEL UP COMPLETE");
                         setGameStateWithLog('ready');
-                        switchPlayer()
+                        // WINNER KEEPS PLAYING - NO switchPlayer() here
                     }, 4000);
                 }, 2000);
             } else if (finalScore >= currentLevel.targetScore && currentPlayer.level === LEVELS.length) {
                 console.log("🏆 GAME COMPLETE! VICTORY FOR", currentPlayer.name);
                 soundManager.playVictory();
-                updatePlayer({ totalScore: finalScore })
+                
                 setTimeout(() => {
-                    setWinner(currentPlayer)
+                    // Pass the player with their accumulated totalScore
+                    setWinner({
+                        ...currentPlayer,
+                        score: finalScore,
+                        totalScore: currentPlayer.totalScore + roundFinalScore
+                    })
                     setGameComplete(true);
                     setGameStateWithLog('victory');
                 }, 2000);
             } else {
+                // Player didn't reach target score - they KEEP PLAYING
+                console.log("📊", currentPlayer.name, "didn't reach target score. Score:", finalScore, "/", currentLevel.targetScore);
+                console.log("🔄 KEEP PLAYING - NO SWITCH");
+                
                 setTimeout(() => {
                     updatePlayer({ roundScore: 0 })
                     setFeedback(null);
                     targetScoresRef.current = [];
+                    roundCompleteRef.current = false;
                     console.log("🔄 CHANGING GAME STATE TO 'ready' - ROUND COMPLETE");
                     setGameStateWithLog('ready');
-                    switchPlayer()
+                    // NO switchPlayer() - Player keeps playing even if they didn't reach target
                 }, 2000);
             }
         }
@@ -380,8 +687,32 @@ export default function MultiGame() {
         setGameComplete(false);
         setWinner(null);
         setPlayers([
-            { id: 1, name: "Joueur 1", level: 1, score: 0, round: 0, totalRounds: 0, bestStreak: 0, streak: 0, roundScore: 0, totalScore: 0 },
-            { id: 2, name: "Joueur 2", level: 1, score: 0, round: 0, totalRounds: 0, bestStreak: 0, streak: 0, roundScore: 0, totalScore: 0 }
+            { 
+                id: 1, 
+                name: "Joueur 1", 
+                level: 1, 
+                score: 0, 
+                round: 0, 
+                totalRounds: 0, 
+                bestStreak: 0, 
+                streak: 0, 
+                roundScore: 0, 
+                totalScore: 0,
+                hasMadeMistake: false
+            },
+            { 
+                id: 2, 
+                name: "Joueur 2", 
+                level: 1, 
+                score: 0, 
+                round: 0, 
+                totalRounds: 0, 
+                bestStreak: 0, 
+                streak: 0, 
+                roundScore: 0, 
+                totalScore: 0,
+                hasMadeMistake: false
+            }
         ])
         setCurrentPlayerIndex(0)
         setTargets([])
@@ -391,8 +722,30 @@ export default function MultiGame() {
         currentIndexRef.current = 0
         targetScoresRef.current = []
         processingRef.current = false
-        setGameStateWithLog('ready')
+        roundCompleteRef.current = false
+        setCameraInitialized(false)
+        setGameStateWithLog('selectingStarter')
     };
+
+    // Show starting player selection
+    if (gameState === 'selectingStarter') {
+        return (
+            <StartingPlayerSelection
+                players={players}
+                onPlayerSelected={handleStarterSelected}
+                onBack={() => window.history.back()}
+            />
+        );
+    }
+
+    // Safety check - if no current player, show loading
+    if (!currentPlayer) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-cinema to-purple-900 flex items-center justify-center">
+                <div className="text-white text-2xl">Loading game...</div>
+            </div>
+        );
+    }
 
     if (gameComplete) {
         return (
@@ -645,8 +998,11 @@ export default function MultiGame() {
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent'
                 }}>
-                    MULTIJOUEUR - {currentPlayer.name}'s Turn
+                    MULTIJOUEUR - {currentPlayer ? currentPlayer.name + "'s Turn" : 'Loading...'}
                 </h1>
+                <div className="text-gray-400 text-sm">
+                    Player keeps playing until they make a wrong emotion
+                </div>
             </div>
 
             <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6 relative z-10">
@@ -677,7 +1033,18 @@ export default function MultiGame() {
                             </motion.div>
                         )}
 
-                        <video ref={videoRef} autoPlay muted playsInline className="w-full" />
+                        <video 
+                            ref={videoRef} 
+                            autoPlay 
+                            muted 
+                            playsInline 
+                            className="w-full"
+                        />
+                        {!cameraInitialized && (
+                            <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
+                                <div className="text-white text-xl">Initializing camera...</div>
+                            </div>
+                        )}
                         <canvas ref={canvasRef} className="hidden" />
 
                         {gameState === 'countdown' && (
@@ -735,7 +1102,8 @@ export default function MultiGame() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={startRound}
-                                className="w-full px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center gap-2"
+                                disabled={!cameraInitialized}
+                                className="w-full px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{
                                     fontFamily: '"Bebas Neue", sans-serif',
                                     background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
@@ -743,7 +1111,7 @@ export default function MultiGame() {
                                 }}
                             >
                                 <Play size={20} fill="#000" />
-                                START
+                                {cameraInitialized ? 'START' : 'WAITING FOR CAMERA...'}
                             </motion.button>
                         )}
                     </div>
@@ -774,9 +1142,17 @@ export default function MultiGame() {
                         <p className="text-lg text-gray-400">
                             Score: <span className="text-gold font-bold">{player.score}</span> / {LEVELS[player.level - 1]?.targetScore || 300}
                         </p>
+                        <p className="text-lg text-gray-400">
+                            Total Score: <span className="text-green-400 font-bold">{player.totalScore}</span>
+                        </p>
                         {player.streak > 0 && (
                             <p className="text-gold flex items-center justify-center gap-1 mt-2">
                                 <Zap size={18} /> STREAK x{player.streak}
+                            </p>
+                        )}
+                        {player.hasMadeMistake && (
+                            <p className="text-red-400 flex items-center justify-center gap-1 mt-2">
+                                ❌ Made wrong emotion - Waiting for turn
                             </p>
                         )}
                         <div className="space-y-2 pt-4 border-t border-gray-800">
@@ -789,6 +1165,10 @@ export default function MultiGame() {
                                 <span className="text-gold font-bold flex items-center gap-1">
                                     <Zap size={14} /> {player.bestStreak}
                                 </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">Total Rounds</span>
+                                <span className="text-white font-bold">{player.totalRounds}</span>
                             </div>
                         </div>
                     </div>

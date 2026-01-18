@@ -1,11 +1,37 @@
-import { motion } from 'framer-motion'
-import { Play, Users, Film, Clapperboard } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Play, Users, GraduationCap } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CurtainOpening from './components/CurtainOpening'
 
 export default function Landing() {
   const [curtainComplete, setCurtainComplete] = useState(false)
+  const [showTrainingPopup, setShowTrainingPopup] = useState(false)
+  const [hasSeenPopup, setHasSeenPopup] = useState(false)
+
+  // Show popup after curtain opens, only once
+  useEffect(() => {
+    if (curtainComplete && !hasSeenPopup) {
+      const timer = setTimeout(() => {
+        setShowTrainingPopup(true)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [curtainComplete, hasSeenPopup])
+
+  const handlePopupDismiss = () => {
+    setShowTrainingPopup(false)
+    setHasSeenPopup(true)
+    localStorage.setItem('hasSeenTrainingPopup', 'true')
+  }
+
+  // Check if user has seen popup before
+  useEffect(() => {
+    const seen = localStorage.getItem('hasSeenTrainingPopup')
+    if (seen) {
+      setHasSeenPopup(true)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{
@@ -33,6 +59,62 @@ export default function Landing() {
           }}
         />
       </div>
+
+      {/* NEW: Gray Training Button - Top Right */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+        className="fixed top-6 right-6 z-50"
+      >
+        <Link to="/training">
+          <motion.button
+            whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.2)' }}
+            whileTap={{ scale: 0.95 }}
+            className="p-3 rounded-xl bg-gray-800/80 backdrop-blur-sm border border-gray-600/50 text-gray-300 hover:text-white transition-all duration-200"
+            title="Training Mode"
+          >
+            <GraduationCap size={20} />
+          </motion.button>
+        </Link>
+      </motion.div>
+
+      {/* NEW: Training Popup Message */}
+      <AnimatePresence>
+        {showTrainingPopup && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20 }}
+            className="fixed top-20 right-6 z-50 max-w-xs"
+          >
+            <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-600/50 rounded-xl p-4 shadow-2xl">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-purple-600/20 rounded-lg">
+                  <GraduationCap className="text-purple-400" size={18} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold text-sm mb-1">New here?</h3>
+                  <p className="text-gray-300 text-xs leading-relaxed">
+                    Try Training Mode to master emotions with AI coaching and real-time feedback!
+                  </p>
+                </div>
+                <button
+                  onClick={handlePopupDismiss}
+                  className="text-gray-500 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {/* Arrow pointing to button */}
+              <div className="absolute -top-2 right-3 w-4 h-4 bg-gray-900 border-l border-t border-gray-600/50 rotate-45" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -96,6 +178,7 @@ export default function Landing() {
                 color: '#fff'
               }}
             >
+            
               <Users size={28} />
               MULTIPLAYER
               <motion.div

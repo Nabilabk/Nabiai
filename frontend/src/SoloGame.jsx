@@ -834,11 +834,7 @@ export default function SoloGame() {
   key={score + '-' + Date.now()}
   className="fixed bottom-4 right-4 bg-black/90 text-white p-4 rounded-xl shadow-2xl text-sm font-mono z-50"
 >
-  <p className="text-gold font-bold">LIVE DEBUG</p>
-  <p>Target: <span className="text-yellow-400">{targets[currentTargetIndex] || '—'}</span></p>
-  <p>Detected: <span className="text-green-400">{feedback?.emotion || '—'}</span></p>
-  <p>Confidence: <span className="text-blue-400">{(feedback?.confidence * 100 || 0).toFixed(1)}%</span></p>
-  <p>Score: <span className="text-pink-400">{score}</span> ← LIVE</p>
+
 </div>
 
             <AnimatePresence>
@@ -895,40 +891,3 @@ export default function SoloGame() {
         </motion.div>
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

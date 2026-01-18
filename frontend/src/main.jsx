@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Landing from './Landing'
 import SoloGame from './SoloGame'
 import MultiGame from './MultiGame'
+import TrainingMode from './TrainingMode'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/" element={<Landing />} />
         <Route path="/solo" element={<SoloGame />} />
         <Route path="/multi" element={<MultiGame />} />
+        <Route path="/training" element={<TrainingMode />} />                                                   
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
